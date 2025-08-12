@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="tr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        
+        <!-- SEO ve Gizlilik Meta Tagları -->
+        <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+        <meta name="googlebot" content="noindex, nofollow" />
+        <meta name="bingbot" content="noindex, nofollow" />
+        <meta name="slurp" content="noindex, nofollow" />
+        <meta name="duckduckbot" content="noindex, nofollow" />
+        <meta name="description" content="Private application - Do not index" />
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+        
+        <title>Efor Takip Sistemi - Giriş</title>
+        <link rel="stylesheet" href="css/base.css" />
+        <link rel="stylesheet" href="css/login.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+    </head>
+    <body>
+        <!-- Loading Screen -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Yükleniyor...</p>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen">
+            <div class="login-container">
+                <div class="login-header">
+                    <i class="fas fa-code"></i>
+                    <h1>Efor Takip Sistemi</h1>
+                    <p>Giriş yapın</p>
+                </div>
+
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="email">E-posta</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input
+                                type="email"
+                                id="email"
+                                required
+                                placeholder="ornek@email.com"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Şifre</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input
+                                type="password"
+                                id="password"
+                                required
+                                placeholder="Şifrenizi girin"
+                            />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Giriş Yap
+                    </button>
+
+                    <div id="login-error" class="error-message"></div>
+
+                    <div class="demo-accounts">
+                        <h3>Demo Hesaplar</h3>
+                        <div
+                            class="demo-account"
+                            onclick="fillLogin('dev@example.com', 'password')"
+                        >
+                            <i class="fas fa-user-cog"></i>
+                            <span>Developer: dev@example.com</span>
+                        </div>
+                        <div
+                            class="demo-account"
+                            onclick="fillLogin('manager@example.com', 'password')"
+                        >
+                            <i class="fas fa-user-tie"></i>
+                            <span>Manager: manager@example.com</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script src="js/cache-buster.js"></script>
+        <script src="js/data.js"></script>
+        <script src="js/auth.js"></script>
+    </body>
+</html>
