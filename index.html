@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="tr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Efor Takip Sistemi</title>
+        <link rel="stylesheet" href="css/styles.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+    <body>
+        <!-- Loading Screen -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Yükleniyor...</p>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen">
+            <div class="login-container">
+                <div class="login-header">
+                    <i class="fas fa-code"></i>
+                    <h1>Efor Takip Sistemi</h1>
+                    <p>Giriş yapın</p>
+                </div>
+
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="email">E-posta</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input
+                                type="email"
+                                id="email"
+                                required
+                                placeholder="ornek@email.com"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Şifre</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input
+                                type="password"
+                                id="password"
+                                required
+                                placeholder="Şifrenizi girin"
+                            />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Giriş Yap
+                    </button>
+
+                    <div id="login-error" class="error-message"></div>
+
+                    <div class="demo-accounts">
+                        <h3>Demo Hesaplar</h3>
+                        <div
+                            class="demo-account"
+                            onclick="fillLogin('dev@example.com', 'password')"
+                        >
+                            <i class="fas fa-user-cog"></i>
+                            <span>Developer: dev@example.com</span>
+                        </div>
+                        <div
+                            class="demo-account"
+                            onclick="fillLogin('manager@example.com', 'password')"
+                        >
+                            <i class="fas fa-user-tie"></i>
+                            <span>Manager: manager@example.com</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Application -->
+        <div id="main-app" class="screen hidden">
+            <!-- Navigation -->
+            <nav class="navbar">
+                <div class="nav-brand">
+                    <i class="fas fa-code"></i>
+                    <span>Efor Takip</span>
+                </div>
+
+                <div class="nav-menu">
+                    <button class="nav-item active" data-view="dashboard">
+                        <i class="fas fa-chart-bar"></i>
+                        Dashboard
+                    </button>
+                    <button
+                        class="nav-item"
+                        data-view="entries"
+                        id="entries-nav"
+                    >
+                        <i class="fas fa-list"></i>
+                        Kayıtlar
+                    </button>
+                    <button
+                        class="nav-item"
+                        data-view="all-entries"
+                        id="all-entries-nav"
+                        style="display: none"
+                    >
+                        <i class="fas fa-users"></i>
+                        Tüm Kayıtlar
+                    </button>
+                </div>
+
+                <div class="nav-user">
+                    <button class="btn btn-outline" onclick="openProfileModal()">
+                        <i class="fas fa-user-cog"></i>
+                        <span id="user-name"></span>
+                    </button>
+                    <span id="user-role" class="user-role"></span>
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Çıkış
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view">
+                <div class="dashboard-header">
+                    <h2>Dashboard</h2>
+                    <div class="dashboard-filters">
+                        <div class="filter-item">
+                            <label for="dashboard-filter-developer"
+                                >Developer</label
+                            >
+                            <select id="dashboard-filter-developer">
+                                <option value="all">Tüm Developerlar</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="dashboard-filter-status">Statü</label>
+                            <select id="dashboard-filter-status">
+                                <option value="all">Tüm Statüler</option>
+                                <option value="pending">Bekleyen</option>
+                                <option value="approved">Onaylanan</option>
+                                <option value="rejected">Reddedilen</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="dashboard-start-date"
+                                >Başlangıç Tarihi</label
+                            >
+                            <input
+                                type="date"
+                                id="dashboard-start-date"
+                                onchange="applyDashboardFilter()"
+                            />
+                        </div>
+                        <div class="filter-item">
+                            <label for="dashboard-end-date">Bitiş Tarihi</label>
+                            <input
+                                type="date"
+                                id="dashboard-end-date"
+                                onchange="applyDashboardFilter()"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-clock stat-icon"></i>
+                        <div class="stat-content">
+                            <h3 id="daily-hours">0</h3>
+                            <p>Günlük Saat</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-week stat-icon"></i>
+                        <div class="stat-content">
+                            <h3 id="weekly-hours">0</h3>
+                            <p>Haftalık Saat</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-alt stat-icon"></i>
+                        <div class="stat-content">
+                            <h3 id="monthly-hours">0</h3>
+                            <p>Aylık Saat</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-tasks stat-icon"></i>
+                        <div class="stat-content">
+                            <h3 id="total-entries">0</h3>
+                            <p>Toplam Kayıt</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-charts">
+                    <div class="chart-container">
+                        <h3>Haftalık Çalışma Saatleri</h3>
+                        <canvas id="weekly-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Statü Dağılımı</h3>
+                        <canvas id="status-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entries View (Developer) -->
+            <div id="entries-view" class="view hidden">
+                <div class="entries-header">
+                    <h2>Çalışma Kayıtlarım</h2>
+                    <button
+                        class="btn btn-primary"
+                        onclick="showAddEntryModal()"
+                        id="add-entry-btn"
+                    >
+                        <i class="fas fa-plus"></i>
+                        Yeni Kayıt Ekle
+                    </button>
+                </div>
+
+                <div class="entries-table-container">
+                    <table class="entries-table">
+                        <thead>
+                            <tr>
+                                <th>Tarih</th>
+                                <th>Açıklama</th>
+                                <th>Saat</th>
+                                <th>Durum</th>
+                                <th>Yönetici Notu</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entries-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- All Entries View (Manager) -->
+            <div id="all-entries-view" class="view hidden">
+                <div class="entries-header">
+                    <h2>Tüm Çalışma Kayıtları</h2>
+                    <div class="entries-filters">
+                        <div class="filter-item">
+                            <label for="filter-developer">Developer</label>
+                            <select id="filter-developer">
+                                <option value="all">Tüm Developerlar</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="filter-status">Statü</label>
+                            <select id="filter-status">
+                                <option value="all">Tüm Statüler</option>
+                                <option value="pending">Bekleyen</option>
+                                <option value="approved">Onaylanan</option>
+                                <option value="rejected">Reddedilen</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="filter-start-date"
+                                >Başlangıç Tarihi</label
+                            >
+                            <input
+                                type="date"
+                                id="filter-start-date"
+                                onchange="applyDateFilter()"
+                            />
+                        </div>
+                        <div class="filter-item">
+                            <label for="filter-end-date">Bitiş Tarihi</label>
+                            <input
+                                type="date"
+                                id="filter-end-date"
+                                onchange="applyDateFilter()"
+                            />
+                        </div>
+                        <div class="filter-item">
+                            <button
+                                class="btn btn-primary btn-filter"
+                                onclick="applyDateFilter()"
+                            >
+                                <i class="fas fa-filter"></i>
+                                Filtrele
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="entries-table-container">
+                    <table class="entries-table">
+                        <thead>
+                            <tr>
+                                <th>Developer</th>
+                                <th>Tarih</th>
+                                <th>Açıklama</th>
+                                <th>Saat</th>
+                                <th>Durum</th>
+                                <th>Yönetici Notu</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-entries-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Entry Modal -->
+        <div id="entry-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Yeni Kayıt Ekle</h3>
+                    <button class="modal-close" onclick="closeEntryModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="entry-form">
+                    <div class="form-group">
+                        <label for="entry-date">Tarih</label>
+                        <input type="date" id="entry-date" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="entry-description">Açıklama</label>
+                        <textarea
+                            id="entry-description"
+                            required
+                            placeholder="Yapılan işi detaylı olarak açıklayın..."
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="entry-hours">Çalışma Saati</label>
+                        <input
+                            type="number"
+                            id="entry-hours"
+                            min="0.5"
+                            max="24"
+                            step="0.5"
+                            required
+                        />
+                    </div>
+
+                    <div class="modal-actions">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="closeEntryModal()"
+                        >
+                            İptal
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Approval Modal -->
+        <div id="approval-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="approval-title">Kayıt Onaylama</h3>
+                    <button class="modal-close" onclick="closeApprovalModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="approval-info">
+                    <p>
+                        <strong>Developer:</strong>
+                        <span id="approval-developer"></span>
+                    </p>
+                    <p>
+                        <strong>Tarih:</strong> <span id="approval-date"></span>
+                    </p>
+                    <p>
+                        <strong>Açıklama:</strong>
+                        <span id="approval-description"></span>
+                    </p>
+                    <p>
+                        <strong>Saat:</strong> <span id="approval-hours"></span>
+                    </p>
+                </div>
+
+                <form id="approval-form">
+                    <div class="form-group">
+                        <label for="manager-note"
+                            >Yönetici Notu (Red durumunda zorunlu)</label
+                        >
+                        <textarea
+                            id="manager-note"
+                            placeholder="Onay/Red ile ilgili açıklama..."
+                        ></textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="closeApprovalModal()"
+                        >
+                            İptal
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            onclick="rejectEntry()"
+                        >
+                            <i class="fas fa-times"></i>
+                            Reddet
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-success"
+                            onclick="approveEntry()"
+                        >
+                            <i class="fas fa-check"></i>
+                            Onayla
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- View Entry Modal -->
+        <div id="view-entry-modal" class="modal">
+            <div class="modal-content view-modal-content">
+                <div class="modal-header view-modal-header">
+                    <div class="header-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="header-text">
+                        <h3>Kayıt Detayları</h3>
+                        <p>Çalışma kaydı bilgileri</p>
+                    </div>
+                    <button class="modal-close" onclick="closeViewEntryModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="entry-details">
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i class="fas fa-user"></i>
+                            <strong>Developer</strong>
+                        </div>
+                        <span id="view-developer"></span>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i class="fas fa-calendar-alt"></i>
+                            <strong>Kayıt Tarihi</strong>
+                        </div>
+                        <span id="view-date"></span>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i class="fas fa-file-alt"></i>
+                            <strong>Açıklama</strong>
+                        </div>
+                        <span id="view-description"></span>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i class="fas fa-clock"></i>
+                            <strong>Çalışma Saati</strong>
+                        </div>
+                        <span id="view-hours"></span>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Durum</strong>
+                        </div>
+                        <span id="view-status"></span>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">
+                            <i class="fas fa-comment"></i>
+                            <strong>Yönetici Notu</strong>
+                        </div>
+                        <span id="view-manager-note"></span>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="closeViewEntryModal()"
+                    >
+                        <i class="fas fa-times"></i>
+                        Kapat
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-confirm-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Kayıt Silme Onayı</h3>
+                    <button
+                        class="modal-close"
+                        onclick="closeDeleteConfirmModal()"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="delete-warning">
+                    <i
+                        class="fas fa-exclamation-triangle"
+                        style="
+                            font-size: 3rem;
+                            color: var(--warning-color);
+                            margin-bottom: 1rem;
+                        "
+                    ></i>
+                    <p>Bu kaydı silmek istediğinizden emin misiniz?</p>
+                    <p style="color: var(--gray-600); font-size: 0.9rem">
+                        Bu işlem geri alınamaz.
+                    </p>
+                </div>
+
+                <div class="modal-actions">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="closeDeleteConfirmModal()"
+                    >
+                        İptal
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        onclick="confirmDelete()"
+                    >
+                        <i class="fas fa-trash"></i>
+                        Sil
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <!-- Profile Edit Modal -->
+        <div id="profile-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="header-icon">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    <div class="header-text">
+                        <h3>Profil Düzenle</h3>
+                        <p>Hesap bilgilerinizi güncelleyin</p>
+                    </div>
+                    <button class="modal-close" onclick="closeProfileModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="profile-form" onsubmit="updateProfile(event)">
+                    <div class="form-group">
+                        <label for="profile-name">Ad Soyad *</label>
+                        <input 
+                            type="text" 
+                            id="profile-name" 
+                            required 
+                            placeholder="Adınızı ve soyadınızı girin"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile-email">E-posta Adresi *</label>
+                        <input 
+                            type="email" 
+                            id="profile-email" 
+                            required 
+                            placeholder="E-posta adresinizi girin"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="current-password">Mevcut Şifre *</label>
+                        <input 
+                            type="password" 
+                            id="current-password" 
+                            required 
+                            placeholder="Mevcut şifrenizi girin"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-password">Yeni Şifre (Opsiyonel)</label>
+                        <input 
+                            type="password" 
+                            id="new-password" 
+                            placeholder="Yeni şifre (boş bırakılabilir)"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm-password">Yeni Şifre Tekrar</label>
+                        <input 
+                            type="password" 
+                            id="confirm-password" 
+                            placeholder="Yeni şifreyi tekrar girin"
+                        />
+                    </div>
+
+                    <div class="modal-actions">
+                        <button 
+                            type="button" 
+                            class="btn btn-secondary" 
+                            onclick="closeProfileModal()"
+                        >
+                            İptal
+                        </button>
+                        <button 
+                            type="submit" 
+                            class="btn btn-primary"
+                        >
+                            <i class="fas fa-save"></i>
+                            Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="toast-container"></div>
+
+        <script src="js/data.js"></script>
+        <script src="js/dashboard.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/auth.js"></script>
+    </body>
+</html>
